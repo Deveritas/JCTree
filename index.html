@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PostanoTree Test Page</title>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="PostanoTree.js"></script>
+	<script type="text/javascript" src="draggabilly.pkgd.js"></script>
+	<style type="text/css">
+	.postanoTree-element {
+		border: 1px solid transparent;
+	}
+	.is-dragging {
+		opacity: 0.5;
+		z-index: 2
+	}
+
+	.postanoTree-source {
+		padding: 0px;
+		margin: 0px;
+		border: 1px dashed black;
+	}
+
+	.postanoTree-source * {
+		opacity: 0;
+	}
+	</style>
+</head>
+<body>
+<script type="text/json">
+[{
+	"label": "1",
+	"children": [{
+		"label": "1.1",
+		"children": [{
+			"label": "1.1.1",
+			"children": []
+		}]
+	},{
+		"label": "1.2",
+		"children": [{
+			"label": "<a href=\"http://www.google.com\">1.2.1</a>",
+			"children": [{
+				"label": "1.2.1.1"
+			}]
+		},{
+			"label": "1.2.2"
+		},{
+			"label": "1.2.3",
+			"children": []
+		}]
+	}]
+}]
+</script>
+<script type="text/json" class="source">
+[{
+   "label":"<a href=\"javascript:void(0)\" class=\"tree-parent\">Streams</a><a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action-static js-jqtree-action\" data-popover=\"streams\">\n<i aria-hidden=\"true\" id=\"icon-plus\" class=\"icon icon-plus\"></i>\n</a>",
+   "children":[
+      {
+         "label":"<a class=\"tree-category\" href=\"#/category/87846\">minecraft</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"category\" data-category-id=\"87846\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>",
+         "children":[
+            {
+               "label":"<a class=\"tree-category\" href=\"#/category/61405\">Direwolf20</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"category\" data-category-id=\"61405\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>",
+               "children":[
+                  {
+                     "label":"<a class=\"tree-category\" href=\"#/category/87845\">FTB</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"category\" data-category-id=\"87845\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>",
+                     "children":[
+                        {
+                           "label":"<a class=\"tree-feed\" href=\"#/category/87845/feed/25907\">\n<i class=\"icon icon-before icon-instagram\"></i><span class=\"stream-label\">#minecraftInst</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"87845\" data-feed-id=\"25907\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+                        },
+                        {
+                           "label":"<a class=\"tree-feed\" href=\"#/category/87845/feed/21300\">\n<i class=\"icon icon-before icon-twitter\"></i><span class=\"stream-label\">#FTB</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"87845\" data-feed-id=\"21300\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+                        }
+                     ],
+                     "is_leaf":false
+                  },
+                  {
+                     "label":"<a class=\"tree-feed\" href=\"#/category/61405/feed/21296\">\n<i class=\"icon icon-before icon-twitter\"></i><span class=\"stream-label\">direwolf20</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"61405\" data-feed-id=\"21296\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+                  }
+               ],
+               "is_leaf":false
+            },
+            {
+               "label":""
+            }
+         ],
+         "is_leaf":false
+      },
+      {
+         "label":"<a class=\"tree-category\" href=\"#/category/92940\">vbvb</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"category\" data-category-id=\"92940\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>",
+         "children":[
+            {
+               "label":"<a class=\"tree-category\" href=\"#/category/106743\">Night Vale</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"category\" data-category-id=\"106743\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>",
+               "children":[
+                  {
+                     "label":"<a class=\"tree-feed\" href=\"#/category/106743/feed/38257\">\n<i class=\"icon icon-before icon-facebook\"></i><span class=\"stream-label\">WelcomeToNightVale</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"106743\" data-feed-id=\"38257\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+                  },
+                  {
+                     "label":"<a class=\"tree-feed\" href=\"#/category/106743/feed/38376\">\n<i class=\"icon icon-before icon-twitter\"></i><span class=\"stream-label\">NightValeRadio</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"106743\" data-feed-id=\"38376\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+                  }
+               ],
+               "is_leaf":false
+            },
+            {
+               "label":"<a class=\"tree-feed\" href=\"#/category/92940/feed/37518\">\n<i class=\"icon icon-before icon-twitter\"></i><span class=\"stream-label\">#hashtag</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"92940\" data-feed-id=\"37518\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+            },
+            {
+               "label":"<a class=\"tree-feed\" href=\"#/category/92940/feed/37520\">\n<i class=\"icon icon-before icon-instagram\"></i><span class=\"stream-label\">#hashtag</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"92940\" data-feed-id=\"37520\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+            }
+         ],
+         "is_leaf":false
+      },
+      {
+         "label":"<a class=\"tree-category\" href=\"#/category/110339\">Brand</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"category\" data-category-id=\"110339\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>",
+         "children":[
+            {
+               "label":"<a class=\"tree-feed\" href=\"#/category/110339/feed/39670\">\n<i class=\"icon icon-before icon-googleplus\"></i><span class=\"stream-label\">#minecraft</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"110339\" data-feed-id=\"39670\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+            },
+            {
+               "label":"<a class=\"tree-feed\" href=\"#/category/110339/feed/39671\">\n<i class=\"icon icon-before icon-vine\"></i><span class=\"stream-label\">#woopwoop</span>\n</a>\n<a href=\"javascript:void(0)\" class=\"jqtree-action js-jqtree-action\" data-popover=\"stream\" data-parent-category-id=\"110339\" data-feed-id=\"39671\">\n<i aria-hidden=\"true\" class=\"icon icon-gear\"></i>\n</a>"
+            }
+         ],
+         "is_leaf":false
+      }
+   ]
+}]
+</script>
+<script>
+$(document).ready(function () {
+	json = JSON.parse($(".source").html());
+	// tree = new PostanoTree.MouseWidget($(".target"), json, {
+	// 	idRegex: /\d+(\.\d+)*/
+	// });
+	tree = new PostanoTree.MouseWidget($(".target"), json, {
+		idFunc: function (label) {
+			if (label.match(/category\/\d+(?=\")/) == null) 
+				return null;
+			return label.match(/category\/(\d+)/)[1];
+		},
+		elementFunc: function (id) {
+			var search = $("a[href='#/category/"+id+"']");
+			/*if (search.length)*/ return search;
+			/*else return null;*/
+		}
+	});
+	tree.load({
+		87845: {
+			open: false
+		}
+	});
+	var elems = document.querySelectorAll(".postanoTree-element");
+	var initOff;
+	var moving;
+	for (var i = 0; i < elems.length; i++){
+		var draggie = new Draggabilly(elems[i], {
+			axis: 'y',
+			// containment: '.postanoTree-tree'
+		})
+		draggie.on('dragStart', function (drag) {
+			moving = false;
+			$(drag.element).after('<div class="postanoTree-source">' + drag.element.outerHTML + '</div>').next().children().removeClass("is-dragging");
+			initOff = $(drag.element).offset();
+			$(drag.element).css('position', 'absolute');
+		})
+		draggie.on('dragMove', function (drag, e, loc) {
+			moving = true;
+			console.log($(document.elementFromPoint(loc.pageX, loc.pageY)).closest(".postanoTree-element"));
+		})
+		draggie.on('dragEnd', function (drag) {
+			if (!moving) $(drag.element).trigger('click');
+			$(drag.element).next().remove();
+			$(drag.element).css('position', 'relative');
+			console.log(initOff);
+			$(drag.element).offset(initOff);
+		})
+	}
+})
+
+</script>
+<div class="target"></div>
+</body>
+</html>
