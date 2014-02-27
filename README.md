@@ -10,14 +10,14 @@ Where `target` is a jQuery object, `structure` is a JSON object, and `configurat
 
 ####Configs
 
- Config | Default | Value 
+Config | Default | Value 
 --------|---------|-------
- `globalClass` | postanoTree | A class added to every node in the tree proper.
- `tagClass` | `globalClass` | The class that is by default prepended to the rest of the classes. If `globalClass` is falsy, the default is postanoTree.
- `treeClass` | `tagClass`-tree | The class present in the root `DIV`.
- `groupClass` | `tagClass`-group | The class present in the `UL` elements.
- `elementClass` | `tagClass`-element |  The class present in the `LI` elements.
- `labelClass` | `tagClass`-label | The class present in the `DIV` elements other than the root.
+`globalClass` | postanoTree | A class added to every node in the tree proper.
+`tagClass` | `globalClass` | The class that is by default prepended to the rest of the classes. If `globalClass` is falsy, the default is postanoTree.
+`treeClass` | `tagClass`-tree | The class present in the root `DIV`.
+`groupClass` | `tagClass`-group | The class present in the `UL` elements.
+`elementClass` | `tagClass`-element |  The class present in the `LI` elements.
+`labelClass` | `tagClass`-label | The class present in the `DIV` elements other than the root.
 
 ## MouseWidget
 
@@ -27,21 +27,20 @@ Where `target` is a jQuery object, `structure` is a JSON object, and `configurat
 
 SimpleWidget configs and:
 
- Config | Default | Value 
+Config | Default | Value 
 --------|---------|-------
- `folderClass` | `tagClass`-folder | The class for the open-close `A` element
- `folderOpen` | `tagClass`-folderOpen | The class for open
- `folderClosed` | `tagClass`-folderClosed | The class for closed
- `folderIconOpen` | \u25bc  ▼ | The open icon. (Can accept arbitrary HTML.)
- `folderIconClosed` | \u25b6  ▶ | The closed icon. (Can accept arbitrary HTML.)
- `getIdFromLabel` | Outline schema | ""
- `getElementFromId` | Outline schema | _$()_
+`folderClass` | `tagClass`-folder | The class for the open-close `A` element
+`folderOpen` | `tagClass`-folderOpen | The class for open
+`folderClosed` | `tagClass`-folderClosed | The class for closed
+`folderIconOpen` | \u25bc  ▼ | The open icon. (Can accept arbitrary HTML.)
+`folderIconClosed` | \u25b6  ▶ | The closed icon. (Can accept arbitrary HTML.)
+`getIdFromLabel` | Outline schema | ""
+`getElementFromId` | Outline schema | _$()_
 
+## DragAndDropWidget
 
- ## DragAndDropWidget
+##### The manipulation of the tree
 
- ##### The manipulation of the tree
+#### Configs:
 
- #### Configs:
-
- None
+None
