@@ -34,8 +34,8 @@ SimpleWidget configs and:
  `folderClosed` | `tagClass`-folderClosed | The class for closed
  `folderIconOpen` | \u25bc  ▼ | The open icon. (Can accept arbitrary HTML.)
  `folderIconClosed` | \u25b6  ▶ | The closed icon. (Can accept arbitrary HTML.)
- `getIdFromLabel` | Outline schema |
- `getElementFromId` | Outline schema |
+ `getIdFromLabel` | Outline schema | ""
+ `getElementFromId` | Outline schema | _$()_
 
 
  ## DragAndDropWidget
