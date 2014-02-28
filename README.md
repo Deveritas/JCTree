@@ -4,9 +4,25 @@
 
 Where `target` is a jQuery object, `structure` is a JSON object, and `configuration` is an object.
 
-## SimpleWidget
+`widgetType` is [SimpleWidget](#Simple), [MouseWidget](#Mouse) or [DragAndDropWidget](#Drag)
+
+## <a name="Simple"></a> SimpleWidget
 
 ##### The generation of the HTML
+
+#### Structure
+
+	<div class="globalClass treeClass" id="postano-tree">
+		<ul class="globalClass groupClass">
+			<li class="globalClass elementClass postano-depth-(depth)">
+				<span class="globalClass labelClass"> Label </span>
+				<ul class="globalClass groupClass">
+					...
+				</ul>
+			</li>
+			...
+		</ul>
+	</div>
 
 ####Configs
 
@@ -19,9 +35,37 @@ Config | Default | Value
 `elementClass` | `tagClass`-element |  The class present in the `LI` elements.
 `labelClass` | `tagClass`-label | The class present in the `DIV` elements other than the root.
 
-## MouseWidget
+## <a name="Mouse"></a> MouseWidget
 
 ##### The opening and closing of elements
+
+#### Structure
+
+###### Open Element
+
+	<ul class="globalClass groupClass folderOpen">
+		<li class="globalClass elementClass postano-depth-(depth)">
+			<a class="globalClass folderClass"> folderIconOpen </a>
+			<span class="globalClass labelClass"> Label </span>
+			<ul class="globalClass groupClass">
+				...
+			</ul>
+		</li>
+		...
+	</ul>
+
+###### Closed Element
+
+	<ul class="globalClass groupClass folderClosed">
+		<li class="globalClass elementClass postano-depth-(depth)">
+			<a class="globalClass folderClass"> folderIconClosed </a>
+			<span class="globalClass labelClass"> Label </span>
+			<ul class="globalClass groupClass">
+				...
+			</ul>
+		</li>
+		...
+	</ul>
 
 ####Configs
 
@@ -37,7 +81,41 @@ Config | Default | Value
 `getIdFromLabel` | Outline schema | ""
 `getElementFromId` | Outline schema | _$()_
 
-## DragAndDropWidget
+#### Methods
+
+###### Save State
+`var state = widget.save();`
+
+Saves state internally; returns same state;
+
+###### Load State
+`widget.load(state);`
+
+Loads given state. If no given state, loads last saved state.
+
+###### Examples
+	var state = widget.save();
+	// Interact with widget
+	widget.load(state);
+
+Leaves widget in same state as before. Functionally identical to:
+
+	widget.save();
+	// Interact with widget
+	widget.load();
+
+if `widget.save()` is not called in the code block;
+
+##### State Structure
+
+	{
+		_id_: {
+			_settings_
+		},
+		...
+	}
+
+## <a name="Drag"></a> DragAndDropWidget
 
 ##### The manipulation of the tree
 
