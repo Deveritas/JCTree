@@ -3,59 +3,20 @@
  * MIT Licensed.
  */
 // Inspired by base2 and Prototype
-	
-
-/*
-* 
-* ul
-* 	li
-* 		div
-* 			element
-* 		<subtree>
-* 	li
-* 		div
-* 			element
-* 		<subtree>
-* 	...
-* 
-* 
-* 
-* 
-* Using JQTree's format, for more cross-compatibility
-{
-	label: "<tag></tag>",
-	children: [{
-		label: "<tag></tag>",
-		children: []
-	},{
-		label: "<tag></tag>",
-		children: [{
-			label: "<tag></tag>",
-			children: []
-		}]
-	}]
-};
-*
-*
-* ul
-* 	li
-* 		div
-* 			label
-* 		ul
-* 			li
-* 				div
-* 					label
-* 			li
-* 				div
-* 					label
-* 				ul
-* 					li
-* 						div
-* 							label
-*/
 
 var jQuery, JCTree;
 JCTree = (function ($) {
+	var DEBUG = false;
+	document.onkeydown = function (e) {
+		if (e.keyCode === 68) {
+			if (!DEBUG) DEBUG = true;
+		}
+	};
+	document.onkeyup = function (e) {
+		if (e.keyCode === 68) {
+			if (DEBUG) DEBUG = false;
+		}
+	};
 	(function(){
 		var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 		this.Class = function(){}; // The base Class implementation (does nothing)
@@ -88,12 +49,9 @@ JCTree = (function ($) {
 		};
 	})();
 	var SimpleWidget, MouseWidget, DragAndDrapWidget, Element, Folder, Target, Mobile, elementId=0;
-	var isArray = function (v) {
-		return Object.prototype.toString.call( v ) === '[object Array]'
-	};
-	isArray = Array.isArray || isArray;
-	var isDefined = function (v) {return typeof v != "undefined";};
-	var isFunction = function (v) {return typeof v == "function";};
+	var isArray=Array.isArray||function(v){return Object.prototype.toString.call( v )==='[object Array]';};
+	var isDefined=function(v){return typeof v!="undefined";};
+	var isFunction=function(v){return typeof v=="function";};
 
 	//Elements
 	Element = Class.extend({
@@ -106,12 +64,15 @@ JCTree = (function ($) {
 		append: function (element){
 			this.children.push(element);
 		},
-		printTree: function (indent) {
-			if (!indent) indent = 0;
+		print: function (text, indent){
 			var out = "";
 			for (var i = 0; i < indent; i++) out += " ";
-			out += "Element";//this.label;
+			out += text;
 			console.log(out);
+		},
+		printTree: function (indent) {
+			if (!indent) indent = 0;
+			this.print("Element", indent);
 			for (var i in this.children){
 				this.children[i].printTree(indent+2);
 			}
@@ -153,29 +114,35 @@ JCTree = (function ($) {
 		},
 		printTree: function (indent) {
 			if (!indent) indent = 0;
-			var out = "";
-			for (var i = 0; i < indent; i++) out += " ";
-			out += this.id;//this.label;
-			console.log(out);
+			this.print(this.id, indent);
 			for (var i in this.children){
 				this.children[i].printTree(indent+2);
 			}
-		}
+		},
 	});
 
-	Root = Folder.extend();
+	Root = Folder.extend({
+		printTree: function (indent) {
+			if (!indent) indent = 0;
+			this.print("Root", indent);
+			for (var i in this.children){
+				this.children[i].printTree(indent+2);
+			}
+		},
+	});
 
 
 	//Widgets
 	SimpleWidget = Class.extend({
 		tree: null,
-		name: "SimpleWidget",
+		depth: 0,
 		//Generate HTML
 		_buildElement: function (json) {
 			if (json.label || json.children) {
-				this.html += '<li class="'+this.config.globalClass+' '+this.config.elementClass+'" style="list-style-type: none;">';
+				this.html += '<li class="'+this.config.globalClass+' '+this.config.elementClass+' postano-tree-depth-'+(++this.depth)+'" style="list-style-type: none;">';
 				this._buildLabel(json.label);
 				this._buildChildren(json.children);
+				this.depth--;
 				this.html += '</li>';
 			}
 		},
@@ -183,7 +150,7 @@ JCTree = (function ($) {
 			if (!isDefined(label)) return;
 			this.html += '<span class="'+this.config.globalClass+' '+this.config.labelClass+'" style="display:inline;">';
 			this.html += label;
-			this.html += '</span>'
+			this.html += '</span>';
 		},
 		_buildChildren: function (children) {
 			if (!isArray(children)) return;
@@ -191,28 +158,28 @@ JCTree = (function ($) {
 			for (var i = 0; i < children.length; i++){
 				this._buildElement(children[i], i);
 			}
-			this.html += '</ul>'
+			this.html += '</ul>';
 		},
 
 		//Public functions
 		buildHTML: function () {
 			if (!isDefined(this.json)) return;
-			this.html += '<div class="'+this.config.globalClass+' '+this.config.treeClass+'" id ="tree">';
+			this.html += '<div class="'+this.config.globalClass+' '+this.config.treeClass+'" id="postano-tree">';
 			this._buildChildren(this.json);
 			this.html += '</div>';
 		},
 
 		setDefaultConfigs: function (config) {
 			config = config || {};
-			this.config.noWarn       = isDefined (config.noWarn)	   ? config.noWarn : false;
-			this.config.globalClass  = isDefined (config.globalClass)  ? config.globalClass  : "postanoTree";
-			this.config.tagClass	 = isDefined (config.tagClass) 	   ? config.tagClass 
-																   	   : this.config.globalClass != "" ? this.config.globalClass 
-																   								   		: "postanoTree";
-			this.config.treeClass 	 = isDefined (config.treeClass)    ? config.treeClass    : this.config.tagClass + "-tree";
-			this.config.elementClass = isDefined (config.elementClass) ? config.elementClass : this.config.tagClass + "-element";
-			this.config.labelClass   = isDefined (config.labelClass)   ? config.labelClass   : this.config.tagClass + "-label";
-			this.config.groupClass   = isDefined (config.groupClass)   ? config.groupClass   : this.config.tagClass + "-group";
+			this.config.noWarn		= isDefined (config.noWarn)			? config.noWarn			: false;
+			this.config.globalClass	= isDefined (config.globalClass)	? config.globalClass	: "postanoTree";
+			this.config.tagClass	= isDefined (config.tagClass)		? config.tagClass 
+																		: this.config.globalClass !== ""? this.config.globalClass 
+																										: "postanoTree";
+			this.config.treeClass	= isDefined (config.treeClass)		? config.treeClass		: this.config.tagClass + "-tree";
+			this.config.elementClass= isDefined (config.elementClass)	? config.elementClass	: this.config.tagClass + "-element";
+			this.config.labelClass	= isDefined (config.labelClass)		? config.labelClass		: this.config.tagClass + "-label";
+			this.config.groupClass	= isDefined (config.groupClass)		? config.groupClass		: this.config.tagClass + "-group";
 		},
 
 		init: function ($target, json, config) {
@@ -241,9 +208,17 @@ JCTree = (function ($) {
 		},
 		_buildLabel: function (label) {
 			if (this.cwe instanceof Folder) 
-				this.html += '<a class="'+this.config.globalClass+' '+this.config.folderClass+' '+this.config.folderOpen+'">'+this.config.folderIconOpen+'</a>'
+				this.html += '<a class="'+this.config.globalClass+' '+this.config.folderClass+'">'+this.config.folderIconOpen+'</a>';
 			this.cwe.label = label;
 			this._super(label);
+		},
+		_buildChildren: function (children) {
+			if (!isArray(children)) return;
+			this.html += '<ul class="'+this.config.globalClass+' '+this.config.groupClass+' '+this.config.folderOpen+'">';
+			for (var i = 0; i < children.length; i++){
+				this._buildElement(children[i], i);
+			}
+			this.html += '</ul>';
 		},
 
 		buildHTML: function (json) {
@@ -252,30 +227,32 @@ JCTree = (function ($) {
 			this._super(json);
 		},
 
-		registerClickHandlers: function () {
+		generateClickHandler: function () {
 			var _this = this;
-			$("."+this.config.folderClass).click(function (e){
-				target = $(e.currentTarget);
+			this.clickHandler = function (e) {
+				target = $(e.currentTarget).nextAll("ul");
+					var element = _this.getElementFromLabel(target.html());
 				if (target.hasClass(_this.config.folderOpen)){
-					var element = _this.getElementFromLabel(target.next().html());
 					if (typeof element !== "undefined") element.open = false;
-					target.nextAll("ul").slideUp(_this.slideSpeed);
-					target.removeClass(_this.config.folderOpen).addClass(_this.config.folderClosed).html(_this.config.folderIconClosed);
+					target.slideUp(_this.slideSpeed);
+					target.removeClass(_this.config.folderOpen).addClass(_this.config.folderClosed).prev().prev().html(_this.config.folderIconClosed);
 				} else if (target.hasClass(_this.config.folderClosed)){
-					var element = _this.getElementFromLabel(target.next().html());
 					if (typeof element !== "undefined") element.open = true;
-					target.nextAll("ul").slideDown(_this.slideSpeed);
-					target.removeClass(_this.config.folderClosed).addClass(_this.config.folderOpen).html(_this.config.folderIconOpen);
+					target.slideDown(_this.slideSpeed);
+					target.removeClass(_this.config.folderClosed).addClass(_this.config.folderOpen).prev().prev().html(_this.config.folderIconOpen);
 				}
-			});
+			};
+			return this.clickHandler;
 		},
 
-		getElementFromLabel: function (label) {
-			return this.elements[this.config.getIdFromLabel(label.toString())];
-		},
+		registerClickHandlers: function () { 
+			$("."+this.config.folderClass).click(this.generateClickHandler()); },
+
+		getElementFromLabel: function (label) { 
+			return this.elements[this.config.getIdFromLabel(label.toString())]; },
 
 		save: function (curr) {
-			var curr = curr || this.tree;
+			curr = curr || this.tree;
 			if (curr instanceof Folder) {
 				this.state[curr.id] = {
 					open: curr.open
@@ -287,13 +264,13 @@ JCTree = (function ($) {
 			return this.state;
 		},
 
-		load: function (state) {
+		load: function (state, slow) {
 			this.state = state || this.state;
 			for (var elemId in this.state){
 				var elemState = this.state[elemId];
 				if (typeof elemState.open !== "undefined"){ 
 					var folderElement = this.config.getElementFromId(elemId).parent().prev();
-					this.slideSpeed = 0;
+					if (!slow) this.slideSpeed = 0;
 					if (!elemState.open && folderElement.hasClass(this.config.folderOpen)){
 						folderElement.trigger('click');
 					} else if (elemState.open && folderElement.hasClass(this.config.folderClosed)){
@@ -306,18 +283,16 @@ JCTree = (function ($) {
 
 		setDefaultConfigs: function (config) {
 			this._super(config);
-			var _this = this;
 			config = config || {};
-			this.config.folderClass  	 = isDefined(config.folderClass)  	  ? config.folderClass  	: this.config.tagClass + "-folder";
-			this.config.folderOpen 		 = isDefined(config.folderOpen)   	  ? config.folderOpen   	: this.config.tagClass + "-folderOpen";
-			this.config.folderClosed 	 = isDefined(config.folderClosed) 	  ? config.folderClosed 	: this.config.tagClass + "-folderClosed";
-			this.config.folderIconOpen 	 = isDefined(config.folderIconOpen)   ? config.folderIconOpen 	: "\u25bc"; //▼
-			this.config.folderIconClosed = isDefined(config.folderIconClosed) ? config.folderIconClosed : "\u25b6"; //▶
-			this.config.getIdFromLabel	 = isDefined(config.getIdFromLabel)   ? config.getIdFromLabel   :  function () { return "error"; }
-			this.config.getElementFromId = isDefined(config.getElementFromId) ? config.getElementFromId : function () { return $(); }
+			this.config.folderClass			= isDefined(config.folderClass)			? config.folderClass		: this.config.tagClass + "-folder";
+			this.config.folderOpen			= isDefined(config.folderOpen)			? config.folderOpen			: this.config.tagClass + "-folderOpen";
+			this.config.folderClosed		= isDefined(config.folderClosed)		? config.folderClosed		: this.config.tagClass + "-folderClosed";
+			this.config.folderIconOpen		= isDefined(config.folderIconOpen)		? config.folderIconOpen		: "\u25bc"; //▼
+			this.config.folderIconClosed	= isDefined(config.folderIconClosed)	? config.folderIconClosed	: "\u25b6"; //▶
+			this.config.getIdFromLabel		= isDefined(config.getIdFromLabel)		? config.getIdFromLabel		:  function () { return "error"; };
+			this.config.getElementFromId	= isDefined(config.getElementFromId)	? config.getElementFromId	: function () { return $(); };
 		},
 
-		name: "MouseWidget",
 		init: function ($target, json, config){
 			this.elements = {};
 			this.state = {};
@@ -329,6 +304,110 @@ JCTree = (function ($) {
 	});
 
 	DragAndDropWidget  = MouseWidget.extend({
+		_getElementsAtPosition: function (y) {
+			return $("."+this.config.elementClass).filter(function () {
+				e = $(this);
+				var et = e.offset().top, ul = e.children("ul");
+				return /*(ul.length) ? (et < y && y < ul.offset().top) :*/ (et < y && y < et+e.outerHeight(true)+1);
+			});
+		},
+
+		getElementAtPosition: function (y, dragging) {
+			var elems = this._getElementsAtPosition(y);
+			var l = Number.MAX_VALUE, e = null;
+			for (var i = 0; i < elems.length; i++){
+				if (elems[i].outerHTML.length < l && elems[i] != dragging){
+					l = elems[i].outerHTML.length;
+					e = i;
+				}
+			}
+			return elems[e];
+		},
+
+		getRelativeYIndex: function (e, y) {
+			if (!e.length) return;
+			var ul = e.children("ul"), et = e.offset().top, h = (ul.length) ? ul.offset().top-et : e.outerHeight(true);
+			return (y < et+(++h)/2) ? y-et : y-(et+h);
+		},
+
+		genElement: function ($elem, toGen, y) {
+			var relY = this.getRelativeYIndex($elem, y);
+			if (relY > 0 && relY < this.config.dropGutter) {
+				return $elem.before(toGen).prev();
+			} else if (relY < 0 && relY > -this.config.dropGutter) {
+				var id = this.config.getIdFromLabel($elem.children("."+this.config.labelClass).html());
+				if (this.elements[id] instanceof Folder){
+					return $elem.children("."+this.config.groupClass).prepend(toGen).children("."+this.config.elementClass+":first-child");
+				} else {
+					return $elem.after(toGen).next();
+				}
+			} else {
+				return $();
+			}
+		},
+
+		buildDraggieStart: function () {
+			return function (drag) { 
+				drag.isMoving = false;
+				$(drag.element).removeClass("is-dragging");
+			}.bind(this);
+		},
+
+		buildDraggieMove: function () {
+			return function (drag, e, mouse) {
+				$(".postano-tree-generated").remove();
+				drag.isMoving = true;
+				var $drag = $(drag.element);
+				if (!$drag.hasClass("is-dragging")) $drag.addClass("is-dragging");
+				var elem = this.getElementAtPosition(mouse.pageY, drag.element);
+				if (DEBUG) console.log(elem);
+				this.genElement($(elem), drag.element.outerHTML, mouse.pageY).removeClass("is-dragging").addClass("postano-tree-generated").css("-webkit-transform", '');
+				if (!elem) return;
+				var id = this.config.getIdFromLabel($(elem).children("."+this.config.labelClass).html());
+				if (this.elements[id] instanceof Folder) {
+					if (this.elements[id].open === false)
+						this.config.getElementFromId(id).parent().prev().trigger("click");
+				}
+			}.bind(this);
+		},
+
+		buildDraggieEnd: function () {
+			return function (drag, e, mouse){
+				if (!drag.isMoving) return;
+				$(".postano-tree-generated").remove();
+				$(drag.element).css("left", '').css("top", '');
+				var $elem = $(this.getElementAtPosition(mouse.pageY, drag.element));
+				if ($elem.length) {
+					var newElement = this.genElement($elem, drag.element.outerHTML, mouse.pageY);
+					if (!newElement.length) return;
+					drag.element.remove();
+					newElement.children("."+this.config.folderClass).click(this.clickHandler);
+					this.setupDraggabilly(newElement);
+					this.setupDraggabilly(newElement.find("."+this.config.elementClass));
+				}
+			}.bind(this);
+		},
+
+		setupDraggabilly: function (elem) {
+			var elems = elem || $("."+this.config.elementClass);
+			for (var i = 0; i < elems.length; i++){
+				var draggie = new Draggabilly(elems[i]);
+				draggie.on('dragStart', this.buildDraggieStart());
+				draggie.on('dragMove', this.buildDraggieMove());
+				draggie.on('dragEnd', this.buildDraggieEnd());
+			}
+		},
+
+		setDefaultConfigs: function (config) {
+			this._super(config);
+			config = config || {};
+			this.config.dropGutter = isDefined(config.dropGutter) ? config.dropGutter : 15;
+		},
+
+		init: function ($target, json, config){
+			this._super($target, json, config);
+			this.setupDraggabilly();
+		},
 	});
 
 	return {
