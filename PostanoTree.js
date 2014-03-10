@@ -308,7 +308,7 @@ JCTree = (function ($) {
 			return $("."+this.config.elementClass).filter(function () {
 				e = $(this);
 				var et = e.offset().top, ul = e.children("ul");
-				return /*(ul.length) ? (et < y && y < ul.offset().top) :*/ (et < y && y < et+e.outerHeight(true)+1);
+				return /*(ul.length) ? (et < y && y < ul.offset().top) :*/ (et < y && y <= et+e.outerHeight(true));
 			});
 		},
 
@@ -381,7 +381,7 @@ JCTree = (function ($) {
 					var newElement = this.genElement($elem, drag.element.outerHTML, mouse.pageY);
 					if (!newElement.length) return;
 					drag.element.remove();
-					newElement.children("."+this.config.folderClass).click(this.clickHandler);
+					newElement.find("."+this.config.folderClass).click(this.clickHandler);
 					this.setupDraggabilly(newElement);
 					this.setupDraggabilly(newElement.find("."+this.config.elementClass));
 				}
