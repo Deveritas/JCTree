@@ -2,29 +2,49 @@
 
 ###### var widget = JCTree._widgetType_(_target, structure, configuration_);
 
-Where `target` is a jQuery object, `structure` is a JSON object, and `configuration` is an object.
+Where [`target`](#Target) is a jQuery object, [`structure`](#Format) is a JSON object, and [`configuration`](#Config) is an object.
 
 `widgetType` is [SimpleWidget](#Simple), [MouseWidget](#Mouse) or [DragAndDropWidget](#Drag)
+
+#### <a name="Format"></a> Format
+
+	[
+		{
+			"label": "Folder",
+			"children": [
+				{
+					"label": "Folder with no children",
+					"children": []
+				},
+				...
+			]
+		},
+		{
+			"label": "Element - no 'children' attribute. Will not display folder icon if MouseWidget"
+		},
+		...
+	]
 
 ## <a name="Simple"></a> SimpleWidget
 
 ##### The generation of the HTML
 
-#### Structure
+#### <a name="Target"></a>Structure
+	<target>
+		<div class="globalClass treeClass" id="postano-tree">
+			<ul class="globalClass groupClass">
+				<li class="globalClass elementClass postano-depth-(depth)">
+					<span class="globalClass labelClass"> Label </span>
+					<ul class="globalClass groupClass">
+						...
+					</ul>
+				</li>
+				...
+			</ul>
+		</div>
+	</target>
 
-	<div class="globalClass treeClass" id="postano-tree">
-		<ul class="globalClass groupClass">
-			<li class="globalClass elementClass postano-depth-(depth)">
-				<span class="globalClass labelClass"> Label </span>
-				<ul class="globalClass groupClass">
-					...
-				</ul>
-			</li>
-			...
-		</ul>
-	</div>
-
-####Configs
+####<a name="Config"></a>Configuration Options
 
 Config | Default | Value 
 --------|---------|-------
@@ -67,7 +87,7 @@ Config | Default | Value
 		...
 	</ul>
 
-####Configs
+####Configuration Options
 
 SimpleWidget configs and:
 
