@@ -139,16 +139,15 @@ JCTree = (function ($) {
 		//Generate HTML
 		_buildElement: function (json) {
 			if (json.label || json.children) {
-				this.html += '<li class="'+this.config.globalClass+' '+this.config.elementClass+' postano-tree-depth-'+(++this.depth)+'" style="list-style-type: none;">';
+				this.html += '<li class="'+this.config.globalClass+' '+this.config.elementClass+'" style="list-style-type: none;">';
 				this._buildLabel(json.label);
 				this._buildChildren(json.children);
-				this.depth--;
 				this.html += '</li>';
 			}
 		},
 		_buildLabel: function (label) {
 			if (!isDefined(label)) return;
-			this.html += '<span class="'+this.config.globalClass+' '+this.config.labelClass+'" style="display:inline;">';
+			this.html += '<span class="'+this.config.globalClass+' '+this.config.labelClass+'">';
 			this.html += label;
 			this.html += '</span>';
 		},
@@ -171,15 +170,32 @@ JCTree = (function ($) {
 
 		setDefaultConfigs: function (config) {
 			config = config || {};
-			this.config.noWarn		= isDefined (config.noWarn)			? config.noWarn			: false;
-			this.config.globalClass	= isDefined (config.globalClass)	? config.globalClass	: "postanoTree";
-			this.config.tagClass	= isDefined (config.tagClass)		? config.tagClass 
-																		: this.config.globalClass !== ""? this.config.globalClass 
-																										: "postanoTree";
-			this.config.treeClass	= isDefined (config.treeClass)		? config.treeClass		: this.config.tagClass + "-tree";
-			this.config.elementClass= isDefined (config.elementClass)	? config.elementClass	: this.config.tagClass + "-element";
-			this.config.labelClass	= isDefined (config.labelClass)		? config.labelClass		: this.config.tagClass + "-label";
-			this.config.groupClass	= isDefined (config.groupClass)		? config.groupClass		: this.config.tagClass + "-group";
+			var globalDefault = "postano-tree"
+			this.config.noWarn		= isDefined(config.noWarn)		? config.noWarn			: false;
+			this.config.globalClass	= isDefined(config.globalClass)	? config.globalClass	: globalDefault;
+			this.config.tagClass	= isDefined(config.tagClass)	? config.tagClass 
+																	: this.config.globalClass !== ""? this.config.globalClass 
+																									: globalDefault;
+			this.config.treeClass	= isDefined(config.treeClass)	? config.treeClass		: this.config.tagClass + "-tree";
+			this.config.elementClass= isDefined(config.elementClass)? config.elementClass	: this.config.tagClass + "-element";
+			this.config.labelClass	= isDefined(config.labelClass)	? config.labelClass		: this.config.tagClass + "-label";
+			this.config.groupClass	= isDefined(config.groupClass)	? config.groupClass		: this.config.tagClass + "-group";
+			this.config.depthClass	= isDefined(config.depthClass)	? config.depthClass		: this.config.tagClass + "-depth";
+		},
+
+		buildDepths: function () {
+			var everything = this.$target.find("."+this.config.elementClass), cw$ = this.$target.children().children().children();
+			for (var d = 1; d <= this.maxDepth; d++) {
+				everything.removeClass(this.config.depthClass+"-"+d);
+			}
+			var depth = 0;
+			while (cw$.length) {
+				++depth;
+				cw$ = cw$.filter("."+this.config.elementClass);
+				cw$.addClass(this.config.depthClass+"-"+depth);
+				cw$ = cw$.children().children();
+			}
+			this.maxDepth = depth-1;
 		},
 
 		init: function ($target, json, config) {
@@ -188,10 +204,12 @@ JCTree = (function ($) {
 			this.json = json;
 			this.config = {};
 			this.html = "";
+			this.maxDepth = 0;
 
 			this.setDefaultConfigs(config);
 			this.buildHTML();
 			this.$target.html(this.html);
+			this.buildDepths();
 		},
 	});
 
@@ -384,6 +402,7 @@ JCTree = (function ($) {
 					newElement.find("."+this.config.folderClass).click(this.clickHandler);
 					this.setupDraggabilly(newElement);
 					this.setupDraggabilly(newElement.find("."+this.config.elementClass));
+					this.buildDepths();
 				}
 			}.bind(this);
 		},
