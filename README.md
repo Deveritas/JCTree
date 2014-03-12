@@ -32,9 +32,11 @@ Where [`target`](#Target) is a jQuery object, [`structure`](#Format) is a JSON o
 #### <a name="Target"></a>Structure
 	<target>
 		<div class="globalClass treeClass" id="postano-tree">
-			<ul class="globalClass groupClass">
-				<li class="globalClass elementClass postano-depth-(depth)">
-					<span class="globalClass labelClass"> Label </span>
+			<ul class="globalClass childrenClass">
+				<li class="globalClass childClass postano-depth-(depth)">
+					<div class="globalClass elementClass">
+						<span class="globalClass labelClass"> Label </span>
+					</div>
 					<ul class="globalClass groupClass">
 						...
 					</ul>
@@ -63,10 +65,12 @@ Config | Default | Value
 
 ###### Open Element
 
-	<ul class="globalClass groupClass folderOpen">
-		<li class="globalClass elementClass postano-depth-(depth)">
-			<a class="globalClass folderClass"> folderIconOpen </a>
-			<span class="globalClass labelClass"> Label </span>
+	<ul class="globalClass childrenClass">
+		<li class="globalClass childClass postano-depth-(depth)">
+			<div class="globalClass elementClass">
+				<a class="globalClass folderClass"> folderIconOpen </a>
+				<span class="globalClass labelClass"> Label </span>
+			</div>
 			<ul class="globalClass groupClass">
 				...
 			</ul>
@@ -76,10 +80,12 @@ Config | Default | Value
 
 ###### Closed Element
 
-	<ul class="globalClass groupClass folderClosed">
-		<li class="globalClass elementClass postano-depth-(depth)">
-			<a class="globalClass folderClass"> folderIconClosed </a>
-			<span class="globalClass labelClass"> Label </span>
+	<ul class="globalClass childrenClass">
+		<li class="globalClass childClass postano-depth-(depth)">
+			<div class="globalClass elementClass">
+				<a class="globalClass folderClass folderOpen"> folderIconClosed </a>
+				<span class="globalClass labelClass"> Label </span>
+			</div>
 			<ul class="globalClass groupClass">
 				...
 			</ul>
@@ -94,8 +100,8 @@ SimpleWidget configs and:
 Config | Default | Value 
 --------|---------|-------
 `folderClass` | `tagClass`-folder | The class for the open-close `A` element
-`folderOpen` | `tagClass`-folderOpen | The class for open
-`folderClosed` | `tagClass`-folderClosed | The class for closed
+`folderOpen` | `tagClass`-folder-open | The class for open
+`folderClosed` | `tagClass`-folder-closed | The class for closed
 `folderIconOpen` | \u25bc  ▼ | The open icon. (Can accept arbitrary HTML.)
 `folderIconClosed` | \u25b6  ▶ | The closed icon. (Can accept arbitrary HTML.)
 `getIdFromLabel` | Outline schema | ""
@@ -141,4 +147,6 @@ if `widget.save()` is not called in the code block;
 
 #### Configs:
 
-None
+Config | Default | Value 
+--------|---------|-------
+`dropGutter` | 15 | The number of pixels of the element something can be dropped in
