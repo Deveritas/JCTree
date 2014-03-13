@@ -6,6 +6,7 @@
 
 var jQuery, JCTree;
 JCTree = (function ($) {
+
 	var DEBUG = false;
 	document.onkeydown = function (e) {
 		if (e.keyCode === 68) {
@@ -139,42 +140,42 @@ JCTree = (function ($) {
 
 		//Generate HTML
 		_buildLabel: function (label) {
-			if (!isDefined(label)) return;
-			this.html += '<span class="'+this.config.globalClass+' '+this.config.labelClass+'">';
-			this.html += label;
-			this.html += '</span>';
+			if (isDefined(label))
+				this.cw$.append('<span class="'+this.config.globalClass+' '+this.config.labelClass+'">'+label+'</span>');
 		},
 		_buildElement: function (label) {
 			if (label) {
-				this.html += '<div class="'+this.config.globalClass+' '+this.config.elementClass+'">';
+				this.cw$.append('<div class="'+this.config.globalClass+' '+this.config.elementClass+'"></div>');
+				this.cw$ = this.cw$.children("."+this.config.elementClass).last();
 				this._buildLabel(label);
-				this.html += '</div>';
+				this.cw$  = this.cw$.parent();
 			}
 		},
 		_buildChild: function (json) {
 			if (json.label || json.children) {
-				this.html += '<li class="'+this.config.globalClass+' '+this.config.childClass+'" style="list-style-type: none;">';
+				this.cw$.append('<li class="'+this.config.globalClass+' '+this.config.childClass+'"></li>');
+				this.cw$ = this.cw$.children("."+this.config.childClass).last();
 				this._buildElement(json.label);
 				this._buildChildren(json.children);
-				this.html += '</li>';
+				this.cw$  = this.cw$.parent();
 			}
 		},
 		_buildChildren: function (children) {
 			if (!isArray(children)) return;
-			this.html += '<ul class="'+this.config.globalClass+' '+this.config.childrenClass+'">';
-			for (var i = 0; i < children.length; i++){
-				this._buildChild(children[i], i);
-			}
-			this.html += '</ul>';
+			this.cw$.append('<ul class="'+this.config.globalClass+' '+this.config.childrenClass+'"></ul>');
+			this.cw$ = this.cw$.children("."+this.config.childrenClass).last();
+			for (var i = 0; i < children.length; i++) this._buildChild(children[i], i);
+			this.cw$  = this.cw$.parent();
 		},
 		//Public functions
-		buildHTML: function () {
-			if (!isDefined(this.json)) return;
-			this.html += '<div class="'+this.config.globalClass+' '+this.config.treeClass+'" id="postano-tree">';
-			this._buildChildren(this.json);
-			this.html += '</div>';
+		buildHTML: function (json) {
+			if (!isDefined(json)) return;
+			this.cw$ = this.$target;
+			this.cw$.append('<div class="'+this.config.globalClass+' '+this.config.treeClass+'"></div>');
+			this.cw$ = this.cw$.children("."+this.config.treeClass).last();
+			this._buildChildren(json);
+			this.cw$  = this.cw$.parent();
 		},
-
 		setDefaultConfigs: function (config) {
 			config = config || {};
 			var globalDefault = "postano-tree"
@@ -209,23 +210,20 @@ JCTree = (function ($) {
 				cw$ = cw$.children("."+this.config.childrenClass);
 				cw$ = cw$.children("."+this.config.childClass);
 			}
-			this.maxDepth = depth-1;
+			this.maxDepth = depth;
 		},
 		buildDepths: function () {
 			this.stripDepths();
 			this.generateDepths();
 		},
 		init: function ($target, json, config) {
-			json = json || JSON.parse($target.html());
-			this.$target = $target;
-			this.json = json;
 			this.config = {};
-			this.html = "";
-			this.maxDepth = 0;
-
 			this.setDefaultConfigs(config);
-			this.buildHTML();
-			this.$target.html(this.html);
+
+			this.$target = $target;
+			this.buildHTML(json || JSON.parse($target.html()));
+
+			this.maxDepth = 0;
 			this.generateDepths();
 		},
 	});
@@ -241,17 +239,16 @@ JCTree = (function ($) {
 		},
 		_buildLabel: function (label) {
 			if (this.cwe instanceof Folder) 
-				this.html += '<a class="'+this.config.globalClass+' '+this.config.folderClass+'">'+this.config.folderIconOpen+'</a>';
+				this.cw$.append('<a class="'+this.config.globalClass+' '+this.config.folderClass+'">'+this.config.folderIconOpen+'</a>');
 			this.cwe.label = label;
 			this._super(label);
 		},
 		_buildChildren: function (children) {
 			if (!isArray(children)) return;
-			this.html += '<ul class="'+this.config.globalClass+' '+this.config.childrenClass+' '+this.config.folderOpen+'">';
-			for (var i = 0; i < children.length; i++){
-				this._buildChild(children[i], i);
-			}
-			this.html += '</ul>';
+			this.cw$.append('<ul class="'+this.config.globalClass+' '+this.config.childrenClass+' '+this.config.folderOpen+'"></ul>');
+			this.cw$ = this.cw$.children("."+this.config.childrenClass).last();
+			for (var i = 0; i < children.length; i++) this._buildChild(children[i], i);
+			this.cw$  = this.cw$.parent();
 		},
 
 		buildHTML: function (json) {
@@ -332,7 +329,9 @@ JCTree = (function ($) {
 			this.elements = {};
 			this.state = {};
 			this.slideSpeed = 200;
+
 			this._super($target, json, config);
+			
 			this.tree.buildIds();
 			this.registerClickHandlers();
 		},
@@ -366,9 +365,9 @@ JCTree = (function ($) {
 			return (y < et+(++h)/2) ? y-et : y-(et+h);
 		},
 
-		genElement: function ($elem, toGen, y) {
+		genElement: function ($elem, toGen, y, force) {
 			var relY = this.getRelativeYIndex($elem, y);
-			if (relY > 0 && relY < this.config.dropGutter) {
+			if ((relY > 0 && relY < this.config.dropGutter) || force) {
 				return $elem.before(toGen).prev();
 			} else if (relY < 0 && relY > -this.config.dropGutter) {
 				var id = this.config.getIdFromLabel($elem.children("."+this.config.elementClass).children("."+this.config.labelClass).html());
@@ -398,7 +397,13 @@ JCTree = (function ($) {
 				if (!$drag.hasClass("is-dragging")) $drag.addClass("is-dragging");
 				var elem = this.getElementAtPosition(mouse.pageY, drag.element);
 				if (DEBUG) console.log(elem);
-				this.genElement($(elem), drag.element.outerHTML, mouse.pageY).removeClass("is-dragging").addClass("postano-tree-generated").css("-webkit-transform", '');
+				if (isDefined(elem)){
+					var newElem = this.genElement($(elem), drag.element.outerHTML, mouse.pageY);
+					newElem.removeClass("is-dragging").addClass("postano-tree-generated").css("-webkit-transform", '');
+				} else {
+					var newElem = this.genElement($(drag.element), drag.element.outerHTML, 0, true);
+					newElem.removeClass("is-dragging").addClass("postano-tree-generated").css("-webkit-transform", '');
+				}
 				this.buildDepths();
 				// if (!elem) return;
 				// var id = this.config.getIdFromLabel($(elem).children("."+this.config.labelClass).html());
@@ -445,11 +450,12 @@ JCTree = (function ($) {
 			this.config.dropGutter = isDefined(config.dropGutter) ? config.dropGutter : 15;
 		},
 
-		init: function ($target, json, config){
+		init: function ($target, json, config, depth){
 			this._super($target, json, config);
 			this.setupDraggabilly();
 			this.slideSpeed = 0;
-			$(".postano-tree-depth-2 ."+this.config.folderClass).trigger("click");
+			if (depth)
+				$("."+this.config.depthClass+"-"+depth+" ."+this.config.folderClass).trigger("click");
 			this.slideSpeed = 200;
 		},
 	});
