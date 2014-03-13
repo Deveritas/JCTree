@@ -205,7 +205,6 @@ JCTree = (function ($) {
 			cw$ = cw$.children("."+this.config.childClass);
 			while (cw$.length) {
 				++depth;
-				cw$ = cw$.filter("."+this.config.childClass);
 				cw$.addClass(this.config.depthClass+"-"+depth);
 				cw$ = cw$.children("."+this.config.childrenClass);
 				cw$ = cw$.children("."+this.config.childClass);
@@ -386,6 +385,7 @@ JCTree = (function ($) {
 		buildDraggieStart: function () {
 			return function (drag) { 
 				drag.isMoving = false;
+				drag.hasStoppedMoving = false;
 				$(drag.element).removeClass("is-dragging");
 			}.bind(this);
 		},
@@ -411,18 +411,21 @@ JCTree = (function ($) {
 
 		buildDraggieEnd: function () {
 			return function (drag, e, mouse){
+				if (!drag.hasStoppedMoving) 
+					drag.hasStoppedMoving = true;
+				else return;
 				if (!drag.isMoving) return;
 				$(".postano-tree-generated").remove();
 				$(drag.element).css("left", '').css("top", '').addClass("is-dragging");
 				var $elem = $(this.getElementAtPosition(mouse.pageY, drag.element));
-				if ($elem.length) {
+				if ($elem.length !== 0) {
 					var newElement = this.genElement($elem, drag.element.outerHTML, mouse.pageY).removeClass("is-dragging");
 					if (!newElement.length) return;
 					drag.element.remove();
 					newElement.find("."+this.config.folderClass).on('click', this.clickHandler);
 					this.setupDraggabilly(newElement.parent().find("."+this.config.childClass));
 					this.buildDepths();
-				}
+				} else $(drag.element).removeClass("is-dragging");
 			}.bind(this);
 		},
 
