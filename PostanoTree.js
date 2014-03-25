@@ -431,7 +431,6 @@ JCTree = (function ($) {
 		},
 		buildDraggieStart: function () {
 			return function (drag) {
-				console.log(consoleTrap(this.tree, this.tree.printTree));
 				drag.isMoving = false;
 				drag.hasStoppedMoving = false;
 				$(drag.element).removeClass("is-dragging");
