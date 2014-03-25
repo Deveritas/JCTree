@@ -1,12 +1,6 @@
-/* Simple JavaScript Inheritance
- * By John Resig http://ejohn.org/
- * MIT Licensed.
- */
-// Inspired by base2 and Prototype
-
 var jQuery, JCTree;
 JCTree = (function ($) {
-
+	//DEBUG setting
 	var DEBUG = false;
 	document.onkeydown = function (e) {
 		if (e.keyCode === 68) {
@@ -18,6 +12,11 @@ JCTree = (function ($) {
 			if (DEBUG) DEBUG = false;
 		}
 	};
+	/* Simple JavaScript Inheritance
+	 * By John Resig http://ejohn.org/
+	 * MIT Licensed.
+	 */
+	// Inspired by base2 and Prototype
 	(function(){
 		var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 		this.Class = function(){}; // The base Class implementation (does nothing)
@@ -54,6 +53,15 @@ JCTree = (function ($) {
 	var isDefined=function(v){return typeof v!="undefined";};
 	var isFunction=function(v){return typeof v=="function";};
 
+	function consoleTrap (obj, func) {
+ 		var str = "", oldlog = (console.log);
+ 		console.log = function (text) {
+ 			str = str + text + '\n';};
+ 		func.apply(obj);
+ 		console.log = oldlog;
+ 		return str;
+ 	} 
+
 	//Elements
 	Element = Class.extend({
 		init: function (widget) {
@@ -65,7 +73,7 @@ JCTree = (function ($) {
 		append: function (element){
 			this.children.push(element);
 		},
-		print: function (text, indent){
+		print: function (indent, text){
 			var out = "";
 			for (var i = 0; i < indent; i++) out += " ";
 			out += text;
@@ -73,7 +81,7 @@ JCTree = (function ($) {
 		},
 		printTree: function (indent) {
 			if (!indent) indent = 0;
-			this.print("Element", indent);
+			this.print(indent, "Element");
 			for (var i in this.children){
 				this.children[i].printTree(indent+2);
 			}
@@ -115,7 +123,7 @@ JCTree = (function ($) {
 		},
 		printTree: function (indent) {
 			if (!indent) indent = 0;
-			this.print(this.id, indent);
+			this.print(indent, this.id);
 			for (var i in this.children){
 				this.children[i].printTree(indent+2);
 			}
@@ -125,7 +133,7 @@ JCTree = (function ($) {
 	Root = Folder.extend({
 		printTree: function (indent) {
 			if (!indent) indent = 0;
-			this.print("Root", indent);
+			this.print(indent, "Root");
 			for (var i in this.children){
 				this.children[i].printTree(indent+2);
 			}
@@ -167,7 +175,6 @@ JCTree = (function ($) {
 			for (var i = 0; i < children.length; i++) this._buildChild(children[i], i);
 			this.cw$  = this.cw$.parent();
 		},
-		//Public functions
 		buildHTML: function (json) {
 			if (!isDefined(json)) return;
 			this.cw$ = this.$target;
@@ -176,6 +183,7 @@ JCTree = (function ($) {
 			this._buildChildren(json);
 			this.cw$  = this.cw$.parent();
 		},
+
 		setDefaultConfigs: function (config) {
 			config = config || {};
 			var globalDefault = "postano-tree"
@@ -190,8 +198,9 @@ JCTree = (function ($) {
 			this.config.elementClass= isDefined(config.elementClass)? config.elementClass	: this.config.tagClass + "-element";
 			this.config.labelClass	= isDefined(config.labelClass)	? config.labelClass		: this.config.tagClass + "-label";
 			this.config.depthClass	= isDefined(config.depthClass)	? config.depthClass		: this.config.tagClass + "-depth";
+			this.config.selectedClass	= isDefined(config.selectedClass)	? config.selectedClass	: this.config.tagClass + "-selected";
 		},
-
+ 
 		stripDepths: function () {
 			var everything = this.$target.find("."+this.config.childClass);
 			for (var d = 1; d <= this.maxDepth; d++) {
@@ -216,6 +225,23 @@ JCTree = (function ($) {
 			this.stripDepths();
 			this.generateDepths();
 		},
+
+		generateEventHandlers: function () {
+			var _this = this;
+			this.selectClickHandler = function (e) {
+				var $elem = $(this).first();
+				if (!$elem.hasClass(_this.config.selectedClass)) {
+					$("."+_this.config.selectedClass).removeClass(_this.config.selectedClass);
+					$elem.addClass(_this.config.selectedClass);
+				}
+				e.stopPropagation();
+			}
+		},
+		registerEventHandlers: function (context) {
+			context = context || $("."+this.config.globalClass);
+			context.parent().find("."+this.config.childClass).click(this.selectClickHandler);
+		},
+
 		init: function ($target, json, config) {
 			this.config = {};
 			this.setDefaultConfigs(config);
@@ -225,6 +251,9 @@ JCTree = (function ($) {
 
 			this.maxDepth = 0;
 			this.generateDepths();
+
+			this.generateEventHandlers()
+			this.registerEventHandlers();
 		},
 	});
 
@@ -234,6 +263,7 @@ JCTree = (function ($) {
 			this.cwe = json.children ? new Folder(this) : new Element(this);
 			this.cwe.parent = parent;
 			this._super(json);
+			this.cwe.element = this.cw$.children("."+this.config.childClass)[0];
 			parent.append(this.cwe);
 			this.cwe = parent;
 		},
@@ -250,16 +280,16 @@ JCTree = (function ($) {
 			for (var i = 0; i < children.length; i++) this._buildChild(children[i], i);
 			this.cw$  = this.cw$.parent();
 		},
-
 		buildHTML: function (json) {
 			this.tree = this.cwe = new Root(this);
 			this.cwe.label = "";
 			this._super(json);
 		},
 
-		generateClickHandler: function () {
+		generateEventHandlers: function () {
+			this._super();
 			var _this = this;
-			this.clickHandler = function (e) {
+			this.folderClickHandler = function (e) {
 				target = $(e.currentTarget).parent("."+_this.config.elementClass).nextAll("."+_this.config.childrenClass);
 					var element = _this.getElementFromLabel(target.html());
 				if (target.hasClass(_this.config.folderOpen)){
@@ -274,14 +304,44 @@ JCTree = (function ($) {
 					target.prevAll("."+_this.config.elementClass).children("."+_this.config.folderClass).html(_this.config.folderIconOpen);
 				}
 			};
-			return this.clickHandler;
+		},
+		registerEventHandlers: function (context) {
+			context = context || $("."+this.config.globalClass); 
+			this._super(context);
+			context.find("."+this.config.folderClass).click(this.folderClickHandler);
 		},
 
-		registerClickHandlers: function () { 
-			$("."+this.config.folderClass).click(this.generateClickHandler()); },
-
 		getElementFromLabel: function (label) { 
-			return this.elements[this.config.getIdFromLabel(label.toString())]; },
+			return this.elements[this.config.getIdFromLabel(label.toString())]; 
+		},
+
+		setDefaultConfigs: function (config) {
+			this._super(config);
+			config = config || {};
+			this.config.folderClass			= isDefined(config.folderClass)			? config.folderClass		
+																					: this.config.tagClass + "-folder";
+			this.config.folderOpen			= isDefined(config.folderOpen)			? config.folderOpen			
+																					: this.config.tagClass + "-folder-open";
+			this.config.folderClosed		= isDefined(config.folderClosed)		? config.folderClosed		
+																					: this.config.tagClass + "-folder-closed";
+			this.config.folderIconOpen		= isDefined(config.folderIconOpen)		? config.folderIconOpen		: "\u25bc"; //▼
+			this.config.folderIconClosed	= isDefined(config.folderIconClosed)	? config.folderIconClosed	: "\u25b6"; //▶
+			this.config.getIdFromLabel		= isDefined(config.getIdFromLabel)		? config.getIdFromLabel		
+																					:  function () { return "error"; };
+			this.config.getElementFromId	= isDefined(config.getElementFromId)	? config.getElementFromId	
+																					: function (id) { return elements[id].element; };
+		},
+
+		init: function ($target, json, config){
+			this.elements = {};
+			this.state = {};
+			this.slideSpeed = 200;
+
+			this._super($target, json, config);
+
+			this.tree.buildIds();
+		},
+
 
 		save: function (curr) {
 			curr = curr || this.tree;
@@ -295,7 +355,6 @@ JCTree = (function ($) {
 			}
 			return this.state;
 		},
-
 		load: function (state, slow) {
 			this.state = state || this.state;
 			for (var elemId in this.state){
@@ -312,29 +371,6 @@ JCTree = (function ($) {
 				}
 			}
 		},
-
-		setDefaultConfigs: function (config) {
-			this._super(config);
-			config = config || {};
-			this.config.folderClass			= isDefined(config.folderClass)			? config.folderClass		: this.config.tagClass + "-folder";
-			this.config.folderOpen			= isDefined(config.folderOpen)			? config.folderOpen			: this.config.tagClass + "-folder-open";
-			this.config.folderClosed		= isDefined(config.folderClosed)		? config.folderClosed		: this.config.tagClass + "-folder-closed";
-			this.config.folderIconOpen		= isDefined(config.folderIconOpen)		? config.folderIconOpen		: "\u25bc"; //▼
-			this.config.folderIconClosed	= isDefined(config.folderIconClosed)	? config.folderIconClosed	: "\u25b6"; //▶
-			this.config.getIdFromLabel		= isDefined(config.getIdFromLabel)		? config.getIdFromLabel		:  function () { return "error"; };
-			this.config.getElementFromId	= isDefined(config.getElementFromId)	? config.getElementFromId	: function () { return $(); };
-		},
-
-		init: function ($target, json, config){
-			this.elements = {};
-			this.state = {};
-			this.slideSpeed = 200;
-
-			this._super($target, json, config);
-			
-			this.tree.buildIds();
-			this.registerClickHandlers();
-		},
 	});
 
 	DragAndDropWidget  = MouseWidget.extend({
@@ -346,7 +382,6 @@ JCTree = (function ($) {
 				return /*(ul.length) ? (et < y && y < ul.offset().top) :*/ (et < y && y <= et+e.outerHeight(true));
 			});
 		},
-
 		getElementAtPosition: function (y, dragging) {
 			var elems = this._getElementsAtPosition(y);
 			var l = Number.MAX_VALUE, e = null;
@@ -358,13 +393,11 @@ JCTree = (function ($) {
 			}
 			return elems[e];
 		},
-
 		getRelativeYIndex: function (e, y) {
 			if (!e.length) return;
 			var ul = e.children("ul"), et = e.offset().top, h = (ul.length) ? ul.offset().top-et : e.outerHeight(true);
 			return (y < et+(++h)/2) ? y-et : y-(et+h);
 		},
-
 		genElement: function ($elem, toGen, y, force) {
 			var relY = this.getRelativeYIndex($elem, y);
 			if ((relY > 0 && relY < this.config.dropGutter) || force) {
@@ -380,15 +413,31 @@ JCTree = (function ($) {
 				return $();
 			}
 		},
-
+		getElementFromHTMLElement: function (htmlelement) {
+			for (var element in this.elements) {
+				if (htmlelement == this.elements[element].element) return this.elements[element];
+			}
+		},
+		alterTree: function (moving, $newElement) {
+			var newParentHTML = $newElement.parent().closest("."+this.config.childClass);
+			if (newParentHTML.length){
+				var siblings = moving.parent.children;
+				var index = siblings.indexOf(moving);
+				if (index > -1) siblings.splice(index, 1);
+				newParent = this.getElementFromHTMLElement(newParentHTML[0]);
+				var newIndex = $newElement.index();
+				newParent.children.splice(newIndex, 0, moving);
+			}
+		},
 		buildDraggieStart: function () {
-			return function (drag) { 
+			return function (drag) {
+				console.log(consoleTrap(this.tree, this.tree.printTree));
 				drag.isMoving = false;
 				drag.hasStoppedMoving = false;
 				$(drag.element).removeClass("is-dragging");
+				drag.currentDraggingElement = this.getElementFromHTMLElement(drag.element);
 			}.bind(this);
 		},
-
 		buildDraggieMove: function () {
 			return function (drag, e, mouse) {
 				$(".postano-tree-generated").remove();
@@ -413,13 +462,13 @@ JCTree = (function ($) {
 				// }
 			}.bind(this);
 		},
-
 		buildDraggieEnd: function () {
 			return function (drag, e, mouse){
+				if (!drag.isMoving)
+					return;
 				if (!drag.hasStoppedMoving) 
 					drag.hasStoppedMoving = true;
 				else return;
-				if (!drag.isMoving) return;
 				$(".postano-tree-generated").remove();
 				$(drag.element).css("left", '').css("top", '').addClass("is-dragging");
 				var $elem = $(this.getElementAtPosition(mouse.pageY, drag.element));
@@ -427,15 +476,16 @@ JCTree = (function ($) {
 					var newElement = this.genElement($elem, drag.element.outerHTML, mouse.pageY).removeClass("is-dragging");
 					if (!newElement.length) return;
 					drag.element.remove();
-					newElement.find("."+this.config.folderClass).on('click', this.clickHandler);
-					this.setupDraggabilly(newElement.parent().find("."+this.config.childClass));
+					this.registerEventHandlers(newElement);
 					this.buildDepths();
+					this.alterTree(drag.currentDraggingElement, newElement);
+					$(document).trigger("tree.move", [drag.currentDraggingElement, this.getElementFromHTMLElement($elem[0])]);
 				} else $(drag.element).removeClass("is-dragging");
 			}.bind(this);
 		},
-
-		setupDraggabilly: function (elem) {
-			var elems = elem || $("."+this.config.childClass);
+		registerEventHandlers: function (context) {
+			this._super(context);
+			var elems = context ? context.parent().find("."+this.config.childClass) : $("."+this.config.childClass);
 			for (var i = 0; i < elems.length; i++){
 				var draggie = new Draggabilly(elems[i]);
 				draggie.on('dragStart', this.buildDraggieStart());
@@ -452,10 +502,10 @@ JCTree = (function ($) {
 
 		init: function ($target, json, config, depth){
 			this._super($target, json, config);
-			this.setupDraggabilly();
 			this.slideSpeed = 0;
 			if (depth)
 				$("."+this.config.depthClass+"-"+depth+" ."+this.config.folderClass).trigger("click");
+			$(".postano-tree-depth-2").first().trigger("click");
 			this.slideSpeed = 200;
 		},
 	});
