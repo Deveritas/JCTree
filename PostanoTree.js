@@ -332,7 +332,7 @@ JCTree = (function ($) {
 																					: function (id) { return elements[id].element; };
 		},
 
-		init: function ($target, json, config){
+		init: function ($target, json, config, depth){
 			this.elements = {};
 			this.state = {};
 			this.slideSpeed = 200;
@@ -340,6 +340,12 @@ JCTree = (function ($) {
 			this._super($target, json, config);
 
 			this.tree.buildIds();
+
+			this.slideSpeed = 0;
+			if (depth)
+				$("."+this.config.depthClass+"-"+depth+" ."+this.config.folderClass).trigger("click");
+			$(".postano-tree-depth-2").first().trigger("click");
+			this.slideSpeed = 200;
 		},
 
 
@@ -474,11 +480,11 @@ JCTree = (function ($) {
 				if ($elem.length !== 0) {
 					var newElement = this.genElement($elem, drag.element.outerHTML, mouse.pageY).removeClass("is-dragging");
 					if (!newElement.length) return;
+					$(document).trigger("tree.move", [drag.currentDraggingElement, this.getElementFromHTMLElement($elem[0])]);
 					drag.element.remove();
 					this.registerEventHandlers(newElement);
 					this.buildDepths();
 					this.alterTree(drag.currentDraggingElement, newElement);
-					$(document).trigger("tree.move", [drag.currentDraggingElement, this.getElementFromHTMLElement($elem[0])]);
 				} else $(drag.element).removeClass("is-dragging");
 			}.bind(this);
 		},
@@ -497,15 +503,6 @@ JCTree = (function ($) {
 			this._super(config);
 			config = config || {};
 			this.config.dropGutter = isDefined(config.dropGutter) ? config.dropGutter : 15;
-		},
-
-		init: function ($target, json, config, depth){
-			this._super($target, json, config);
-			this.slideSpeed = 0;
-			if (depth)
-				$("."+this.config.depthClass+"-"+depth+" ."+this.config.folderClass).trigger("click");
-			$(".postano-tree-depth-2").first().trigger("click");
-			this.slideSpeed = 200;
 		},
 	});
 
