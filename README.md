@@ -25,6 +25,19 @@ Where [`target`](#Target) is a jQuery object, [`structure`](#Format) is a JSON o
 		...
 	]
 
+#### <a name="Internal"></a> Internal Format
+
+	Element: {
+		children: [
+			Child Elements
+		]
+		element: HTMLElement reference
+		id: Internal representation
+		label: HTML
+		parent: Parent element, null if Root Element
+		widget: Circular reference to tree widget
+	}
+
 ## <a name="Simple"></a> SimpleWidget
 
 ##### The generation of the HTML
