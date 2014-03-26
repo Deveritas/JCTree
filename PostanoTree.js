@@ -19,7 +19,7 @@ JCTree = (function ($) {
 	// Inspired by base2 and Prototype
 	(function(){
 		var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
-		this.Class = function(){}; // The base Class implementation (does nothing)
+		window.Class = function(){}; // The base Class implementation (does nothing)
 		Class.extend = function(prop) { // Create a new Class that inherits from this class
 			var _super = this.prototype;
 			// Instantiate a base class (but only create the instance, don't run the init constructor)
@@ -33,7 +33,7 @@ JCTree = (function ($) {
 						return function() {
 							var tmp = this._super;
 							this._super = _super[name];
-							var ret = fn.apply(this, arguments);        
+							var ret = fn.apply(this, arguments);
 							this._super = tmp;
 							return ret;
 						};
@@ -48,22 +48,20 @@ JCTree = (function ($) {
 			return Class;
 		};
 	})();
-	var SimpleWidget, MouseWidget, DragAndDrapWidget, Element, Folder, Target, Mobile, elementId=0;
-	var isArray=Array.isArray||function(v){return Object.prototype.toString.call( v )==='[object Array]';};
+	var isArray=Array.isArray||function(v){return Object.prototype.toString.call( v )==="[object Array]";};
 	var isDefined=function(v){return typeof v!="undefined";};
-	var isFunction=function(v){return typeof v=="function";};
 
-	function consoleTrap (obj, func) {
- 		var str = "", oldlog = (console.log);
- 		console.log = function (text) {
- 			str = str + text + '\n';};
- 		func.apply(obj);
- 		console.log = oldlog;
- 		return str;
- 	} 
+	// function consoleTrap (obj, func) {
+	// 	var str = "", oldlog = (console.log);
+	// 	console.log = function (text) {
+	// 		str = str + text + "\n";};
+	// 	func.apply(obj);
+	// 	console.log = oldlog;
+	// 	return str;
+	// }
 
 	//Elements
-	Element = Class.extend({
+	var Element = window.Class.extend({
 		init: function (widget) {
 			this.children = [];
 			this.parent = null;
@@ -77,7 +75,7 @@ JCTree = (function ($) {
 			var out = "";
 			for (var i = 0; i < indent; i++) out += " ";
 			out += text;
-			console.log(out);
+			window.console.log(out);
 		},
 		printTree: function (indent) {
 			if (!indent) indent = 0;
@@ -99,8 +97,8 @@ JCTree = (function ($) {
 			}
 		},
 		_buildIds: function (current) {
-			if (this.widget.elements[current] && !this.widget.config.noWarn) 
-				console.warn("Multiple postanoTree elements with identical ids - will cause erratic behavior");
+			if (this.widget.elements[current] && !this.widget.config.noWarn)
+				window.console.warn("Multiple postanoTree elements with identical ids - will cause erratic behavior");
 			this.widget.elements[current] = this;
 			this.id = current;
 			for (var i in this.children){
@@ -116,9 +114,9 @@ JCTree = (function ($) {
 		},
 	});
 
-	Folder = Element.extend({
+	var Folder = Element.extend({
 		init: function (widget) {
-			this._super(widget); 
+			this._super(widget);
 			this.open = true;
 		},
 		printTree: function (indent) {
@@ -130,7 +128,7 @@ JCTree = (function ($) {
 		},
 	});
 
-	Root = Folder.extend({
+	var Root = Folder.extend({
 		printTree: function (indent) {
 			if (!indent) indent = 0;
 			this.print(indent, "Root");
@@ -142,7 +140,7 @@ JCTree = (function ($) {
 
 
 	//Widgets
-	SimpleWidget = Class.extend({
+	var SimpleWidget = window.Class.extend({
 		tree: null,
 		depth: 0,
 
@@ -186,11 +184,11 @@ JCTree = (function ($) {
 
 		setDefaultConfigs: function (config) {
 			config = config || {};
-			var globalDefault = "postano-tree"
+			var globalDefault = "postano-tree";
 			this.config.noWarn		= isDefined(config.noWarn)		? config.noWarn			: false;
 			this.config.globalClass	= isDefined(config.globalClass)	? config.globalClass	: globalDefault;
-			this.config.tagClass	= isDefined(config.tagClass)	? config.tagClass 
-																	: this.config.globalClass !==""	? this.config.globalClass 
+			this.config.tagClass	= isDefined(config.tagClass)	? config.tagClass
+																	: this.config.globalClass !==""	? this.config.globalClass
 																									: globalDefault;
 			this.config.treeClass	= isDefined(config.treeClass)	? config.treeClass		: this.config.tagClass + "-tree";
 			this.config.childrenClass	= isDefined(config.childrenClass)	? config.childrenClass	: this.config.tagClass + "-children";
@@ -235,7 +233,7 @@ JCTree = (function ($) {
 					$elem.addClass(_this.config.selectedClass);
 				}
 				e.stopPropagation();
-			}
+			};
 		},
 		registerEventHandlers: function (context) {
 			context = context || $("."+this.config.globalClass);
@@ -252,12 +250,12 @@ JCTree = (function ($) {
 			this.maxDepth = 0;
 			this.generateDepths();
 
-			this.generateEventHandlers()
+			this.generateEventHandlers();
 			this.registerEventHandlers();
 		},
 	});
 
-	MouseWidget = SimpleWidget.extend({
+	var MouseWidget = SimpleWidget.extend({
 		_buildChild: function (json) {
 			var parent = this.cwe;
 			this.cwe = json.children ? new Folder(this) : new Element(this);
@@ -268,7 +266,7 @@ JCTree = (function ($) {
 			this.cwe = parent;
 		},
 		_buildLabel: function (label) {
-			if (this.cwe instanceof Folder) 
+			if (this.cwe instanceof Folder)
 				this.cw$.append('<a class="'+this.config.globalClass+' '+this.config.folderClass+'">'+this.config.folderIconOpen+'</a>');
 			this.cwe.label = label;
 			this._super(label);
@@ -290,7 +288,7 @@ JCTree = (function ($) {
 			this._super();
 			var _this = this;
 			this.folderClickHandler = function (e) {
-				target = $(e.currentTarget).parent("."+_this.config.elementClass).nextAll("."+_this.config.childrenClass);
+				var target = $(e.currentTarget).parent("."+_this.config.elementClass).nextAll("."+_this.config.childrenClass);
 					var element = _this.getElementFromLabel(target.html());
 				if (target.hasClass(_this.config.folderOpen)){
 					if (typeof element !== "undefined") element.open = false;
@@ -306,30 +304,30 @@ JCTree = (function ($) {
 			};
 		},
 		registerEventHandlers: function (context) {
-			context = context || $("."+this.config.globalClass); 
+			context = context || $("."+this.config.globalClass);
 			this._super(context);
 			context.find("."+this.config.folderClass).click(this.folderClickHandler);
 		},
 
-		getElementFromLabel: function (label) { 
-			return this.elements[this.config.getIdFromLabel(label.toString())]; 
+		getElementFromLabel: function (label) {
+			return this.elements[this.config.getIdFromLabel(label.toString())];
 		},
 
 		setDefaultConfigs: function (config) {
 			this._super(config);
 			config = config || {};
-			this.config.folderClass			= isDefined(config.folderClass)			? config.folderClass		
+			this.config.folderClass			= isDefined(config.folderClass)			? config.folderClass
 																					: this.config.tagClass + "-folder";
-			this.config.folderOpen			= isDefined(config.folderOpen)			? config.folderOpen			
+			this.config.folderOpen			= isDefined(config.folderOpen)			? config.folderOpen
 																					: this.config.tagClass + "-folder-open";
-			this.config.folderClosed		= isDefined(config.folderClosed)		? config.folderClosed		
+			this.config.folderClosed		= isDefined(config.folderClosed)		? config.folderClosed
 																					: this.config.tagClass + "-folder-closed";
 			this.config.folderIconOpen		= isDefined(config.folderIconOpen)		? config.folderIconOpen		: "\u25bc"; //▼
 			this.config.folderIconClosed	= isDefined(config.folderIconClosed)	? config.folderIconClosed	: "\u25b6"; //▶
-			this.config.getIdFromLabel		= isDefined(config.getIdFromLabel)		? config.getIdFromLabel		
+			this.config.getIdFromLabel		= isDefined(config.getIdFromLabel)		? config.getIdFromLabel
 																					:  function () { return "error"; };
-			this.config.getElementFromId	= isDefined(config.getElementFromId)	? config.getElementFromId	
-																					: function (id) { return elements[id].element; };
+			this.config.getElementFromId	= isDefined(config.getElementFromId)	? config.getElementFromId
+																					: function (id) { return this.elements[id].element; };
 		},
 
 		init: function ($target, json, config, depth){
@@ -365,7 +363,7 @@ JCTree = (function ($) {
 			this.state = state || this.state;
 			for (var elemId in this.state){
 				var elemState = this.state[elemId];
-				if (typeof elemState.open !== "undefined"){ 
+				if (typeof elemState.open !== "undefined"){
 					var folderElement = this.config.getElementFromId(elemId).parent().prev();
 					if (!slow) this.slideSpeed = 0;
 					if (!elemState.open && folderElement.hasClass(this.config.folderOpen)){
@@ -379,12 +377,11 @@ JCTree = (function ($) {
 		},
 	});
 
-	DragAndDropWidget  = MouseWidget.extend({
+	var DragAndDropWidget  = MouseWidget.extend({
 		_getElementsAtPosition: function (y) {
-			var _this = this;
 			return $("."+this.config.childClass).filter(function () {
-				e = $(this);
-				var et = e.offset().top, ul = e.children("."+_this.config.childrenClass);
+				var e = $(this);
+				var et = e.offset().top/*, ul = e.children("."+_this.config.childrenClass)*/;
 				return /*(ul.length) ? (et < y && y < ul.offset().top) :*/ (et < y && y <= et+e.outerHeight(true));
 			});
 		},
@@ -430,7 +427,7 @@ JCTree = (function ($) {
 				var siblings = moving.parent.children;
 				var index = siblings.indexOf(moving);
 				if (index > -1) siblings.splice(index, 1);
-				newParent = this.getElementFromHTMLElement(newParentHTML[0]);
+				var newParent = this.getElementFromHTMLElement(newParentHTML[0]);
 				var newIndex = $newElement.index();
 				newParent.children.splice(newIndex, 0, moving);
 			}
@@ -450,12 +447,13 @@ JCTree = (function ($) {
 				var $drag = $(drag.element);
 				if (!$drag.hasClass("is-dragging")) $drag.addClass("is-dragging");
 				var elem = this.getElementAtPosition(mouse.pageY, drag.element);
-				if (DEBUG) console.log(elem);
+				if (DEBUG) window.console.log(elem);
+				var newElem;
 				if (isDefined(elem)){
-					var newElem = this.genElement($(elem), drag.element.outerHTML, mouse.pageY);
+					newElem = this.genElement($(elem), drag.element.outerHTML, mouse.pageY);
 					newElem.removeClass("is-dragging").addClass("postano-tree-generated").css("-webkit-transform", '');
 				} else {
-					var newElem = this.genElement($(drag.element), drag.element.outerHTML, 0, true);
+					newElem = this.genElement($(drag.element), drag.element.outerHTML, 0, true);
 					newElem.removeClass("is-dragging").addClass("postano-tree-generated").css("-webkit-transform", '');
 				}
 				this.buildDepths();
@@ -471,7 +469,7 @@ JCTree = (function ($) {
 			return function (drag, e, mouse){
 				if (!drag.isMoving)
 					return;
-				if (!drag.hasStoppedMoving) 
+				if (!drag.hasStoppedMoving)
 					drag.hasStoppedMoving = true;
 				else return;
 				$(".postano-tree-generated").remove();
@@ -492,7 +490,7 @@ JCTree = (function ($) {
 			this._super(context);
 			var elems = context ? context.parent().find("."+this.config.childClass) : $("."+this.config.childClass);
 			for (var i = 0; i < elems.length; i++){
-				var draggie = new Draggabilly(elems[i]);
+				var draggie = new window.Draggabilly(elems[i]);
 				draggie.on('dragStart', this.buildDraggieStart());
 				draggie.on('dragMove', this.buildDraggieMove());
 				draggie.on('dragEnd', this.buildDraggieEnd());
